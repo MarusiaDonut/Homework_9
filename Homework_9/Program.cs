@@ -1,34 +1,42 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using static Homework_9.ImageDownloader;
 
 namespace Homework_9
 {
     internal class Program
     {
+
         static void Main(string[] args)
         {
             ImageDownloader imageDownloader = new ImageDownloader();
-            Handler_Started started = new Handler_Started();
-            Handler_Completed completed = new Handler_Completed();
 
-            imageDownloader.ImageStarted += started.Message;
-            imageDownloader.ImageCompleted += completed.Message;
+            imageDownloader.ImageStarted += () => Console.WriteLine("Скачивание файла началось");
+            imageDownloader.ImageCompleted += () => Console.WriteLine("Скачивание файла закончилось");
 
-            var isCompleted = imageDownloader.Download();
-            Console.WriteLine("Нажмите клавишу A для выхода или любую другую клавишу для проверки статуса скачивания");
+            bool isCompleted = imageDownloader.IsDownloadComplited();
+
+            Console.WriteLine("\nНажмите клавишу A для выхода или любую другую клавишу для проверки статуса скачивания");
+           
             var text = Console.ReadLine();
-            if (text == "A")
+            do
             {
-                Environment.Exit(0);
+                if (text == "A" || text == "a")
+                {
+                    Environment.Exit(0);
+                }
+                else if (imageDownloader.IsDownloadComplited() == true)
+                {
+
+                    Console.WriteLine("Картинка загружена");
+                    isCompleted = true;
+                }
+                else if (isCompleted == false)
+                {
+                    Console.WriteLine("Картинка не загружена");
+                }
             }
-            else if (isCompleted == true)
-            {
-                Console.WriteLine("Картинка загружена");
-            }
-            else if (isCompleted == false)
-            {
-                Console.WriteLine("Картинка не загружена");
-            }
+            while (isCompleted == false);
 
         }
     }
