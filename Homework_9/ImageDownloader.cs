@@ -1,34 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace Homework_9
+namespace ImageDownloaderApp
 {
-    internal class ImageDownloader
+    public class ImageDownloader
     {
-        public delegate void ImageDownload();
+        public event Action? DownloadStarted;
+        public event Action? DownloadCompleted;
 
-        public event ImageDownload? ImageStarted;
-        public event ImageDownload? ImageCompleted;
+        public bool isCompleted;
 
 
-        public bool IsDownloadComplited()
+        public async Task<bool> DownloadImageAsync(string remoteUri, string fileName)
         {
-            string remoteUri = "https://oir.mobi/uploads/posts/2021-06/1623942416_31-oir_mobi-p-neveroyatno-krasivie-peizazhi-priroda-kras-33.jpg";
-            string fileName = "bigimage.jpg";
- 
-            var myWebClient = new WebClient();
-            ImageStarted?.Invoke();
-            Console.WriteLine("Качаю \"{0}\" из \"{1}\" .......\n\n", fileName, remoteUri);
-            var task = myWebClient.DownloadFileTaskAsync(remoteUri, fileName);
-            ImageCompleted?.Invoke();
-            Console.WriteLine("Успешно скачал \"{0}\" из \"{1}\"", fileName, remoteUri);
-            return task.IsCompleted;
+            using var myWebClient = new WebClient();
+
+            try
+            {
+                DownloadStarted?.Invoke();
+                Console.WriteLine($"Скачивание файла: \"{fileName}\" из ресурса \"{remoteUri}\"...");
+
+               await myWebClient.DownloadFileTaskAsync(remoteUri, fileName);
+
+                DownloadCompleted?.Invoke();
+                Console.WriteLine($"Скачивание файла закончилось \"{fileName}\" из ресурса \"{remoteUri}\"");
+
+                isCompleted = true;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool IsCompleted()
+        {
+            return isCompleted;
         }
     }
-
 }

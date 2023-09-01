@@ -1,43 +1,45 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using static Homework_9.ImageDownloader;
+﻿using System;
 
-namespace Homework_9
+namespace ImageDownloaderApp
 {
     internal class Program
     {
 
         static void Main(string[] args)
         {
-            ImageDownloader imageDownloader = new ImageDownloader();
+            string remoteUri = "https://oir.mobi/uploads/posts/2021-06/1623942416_31-oir_mobi-p-neveroyatno-krasivie-peizazhi-priroda-kras-33.jpg";
+            string fileName = "bigimage.jpg";
 
-            imageDownloader.ImageStarted += () => Console.WriteLine("Скачивание файла началось");
-            imageDownloader.ImageCompleted += () => Console.WriteLine("Скачивание файла закончилось");
+            var imageDownloader = new ImageDownloader();
 
-            bool isCompleted = imageDownloader.IsDownloadComplited();
+            imageDownloader.DownloadStarted += () => Console.WriteLine("Скачиваие началось");
+            imageDownloader.DownloadCompleted += () => Console.WriteLine("Скачивание закончилось");
 
-            Console.WriteLine("\nНажмите клавишу A для выхода или любую другую клавишу для проверки статуса скачивания");
-           
-            var text = Console.ReadLine();
-            do
+            imageDownloader.DownloadImageAsync(remoteUri, fileName);
+
+            Console.WriteLine("Введите символ 'A' для выхода из программы или любой другой символ для просмотра статуса скачивания.");
+            while (true)
             {
-                if (text == "A" || text == "a")
+
+                var key = Console.ReadLine();
+
+                if (key == "A" || key == "a")
                 {
                     Environment.Exit(0);
                 }
-                else if (imageDownloader.IsDownloadComplited() == true)
+                else
                 {
-
-                    Console.WriteLine("Картинка загружена");
-                    isCompleted = true;
-                }
-                else if (isCompleted == false)
-                {
-                    Console.WriteLine("Картинка не загружена");
+                    if (!imageDownloader.IsCompleted())
+                    {
+                        Console.WriteLine("Статус - картинка не скачана!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Статус - картинка скачана!");
+                        break;
+                    }
                 }
             }
-            while (isCompleted == false);
-
         }
     }
 }
